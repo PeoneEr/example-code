@@ -1,0 +1,43 @@
+version: '3.5'
+services:
+  db:
+    image: postgres:11-alpine
+    volumes:
+      - 'db:/var/lib/postgresql/data'
+  redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+  webpacker:
+    build: .
+    env_file:
+      - '.env'
+    command: bash -c "rm -rf ./public/packs; ./bin/webpack-dev-server"
+    volumes:
+      - bundle:/bundle
+      - app_sync_jobs:/app:nocopy
+    working_dir: /app
+    ports:
+      - '3035:3035'
+  web:
+    build: .
+    command: /bin/bash -c 'rm -rf ./tmp/pids/server.pid && bundle exec rails s -b 0.0.0.0'
+    volumes:
+      - bundle:/bundle
+      - app_sync_jobs:/app:nocopy
+    working_dir: /app
+    ports:
+      - '3000:3000'
+    environment:
+      - WEBPACKER_DEV_SERVER_HOST=webpacker
+    env_file:
+      - '.env'
+    depends_on:
+      - db
+      - redis
+      - webpacker
+volumes:
+  db:
+  bundle:
+  app_sync_jobs:
+    external: true

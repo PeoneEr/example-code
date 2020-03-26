@@ -1,0 +1,5 @@
+version: '2'
+syncs:
+  app_sync_jobs:
+    src: '.'
+    sync_excludes: ['*.swp', 'tmp', 'log', '.docker-sync', 'coverage', '.git', '.idea', 'docker-compose.yml', 'Dockerfile']
